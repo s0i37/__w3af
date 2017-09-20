@@ -22,10 +22,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 import w3af.core.data.kb.knowledge_base as kb
 
 from w3af.core.controllers.plugins.audit_plugin import AuditPlugin
-from w3af.core.controllers.sql_tools.blind_sqli_response_diff import \
-                                BlindSqliResponseDiff
-from w3af.core.controllers.sql_tools.blind_sqli_time_delay import \
-                                blind_sqli_time_delay
+#from w3af.core.controllers.sql_tools.blind_sqli_response_diff import \
+#                                BlindSqliResponseDiff
+#from w3af.core.controllers.sql_tools.blind_sqli_time_delay import \
+#                                blind_sqli_time_delay
+from w3af.core.controllers.sql_tools.blind_sqli_errors import Blind_sqli_error
 
 from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_list import OptionList
@@ -37,6 +38,7 @@ class blind_sqli(AuditPlugin):
     Identify blind SQL injection vulnerabilities.
 
     :author: Andres Riancho (andres.riancho@gmail.com)
+    :changed logic: @s0i37
     """
 
     def __init__(self):
@@ -54,12 +56,16 @@ class blind_sqli(AuditPlugin):
         #
         #    Setup blind SQL injection detector objects
         #
-        bsqli_resp_diff = BlindSqliResponseDiff(self._uri_opener)
-        bsqli_resp_diff.set_eq_limit(self._eq_limit)
+        #bsqli_resp_diff = BlindSqliResponseDiff(self._uri_opener)
+        #bsqli_resp_diff.set_eq_limit(self._eq_limit)
 
-        bsqli_time_delay = blind_sqli_time_delay(self._uri_opener)
+        #bsqli_time_delay = blind_sqli_time_delay(self._uri_opener)
 
-        method_list = [bsqli_resp_diff, bsqli_time_delay]
+        blind_sqli_error = Blind_sqli_error(self._uri_opener)
+
+        method_list = [blind_sqli_error]
+        #method_list = [bsqli_resp_diff, bsqli_time_delay]
+        #method_list = [bsqli_resp_diff, bsqli_time_delay, blind_sqli_error]
 
         #
         #    Use the objects to identify the vulnerabilities
