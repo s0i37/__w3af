@@ -64,6 +64,7 @@ class blind_sqli_time_delay(object):
                                      mutant)
 
                 om.out.debug(v.get_desc())
+                om.out.vulnerability("SQL injection", severity=severity.HIGH)
 
                 return v
 

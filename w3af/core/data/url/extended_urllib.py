@@ -895,7 +895,7 @@ class ExtendedUrllib(object):
         flags = ' (id=%s,from_cache=%i,grep=%i)' % (res.id, from_cache,
                                                     grep)
         msg += flags
-        om.out.debug(msg)
+        #om.out.debug(msg)
 
         http_resp = HTTPResponse.from_httplib_resp(res,
                                                    original_url=original_url_inst)

@@ -61,7 +61,7 @@ class html_file(OutputPlugin):
 
         # User configured parameters
         self._verbose = False
-        self._output_file_name = '~/report.html'
+        self._output_file_name = './report.html'
         self._template = os.path.join(self.template_root, 'complete.html')
 
     def debug(self, message, new_line=True):

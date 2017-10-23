@@ -140,7 +140,7 @@ class sqli(AuditPlugin):
     )
     _multi_re = multi_re(SQL_ERRORS_RE)
 
-    SQLI_STRINGS = (u"a'b\"c'd\"",)
+    SQLI_STRINGS = (u"a'b\"c\\",)
     SQLI_MESSAGE = (u'A SQL error was found in the response supplied by '
                     u'the web application, the error is (only a fragment is '
                     u'shown): "%s". The error was found on response with id %s.')

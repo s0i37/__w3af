@@ -138,7 +138,7 @@ class BlindSqliResponseDiff(object):
             #
             compare_diff = True
 
-        syntax_error = "d'z'0"
+        syntax_error = "a\"b'0\\"
         mutant.set_token_value(syntax_error)
         syntax_error_response, body_syntax_error_response = send_clean(mutant)
 
@@ -187,6 +187,7 @@ class BlindSqliResponseDiff(object):
                                  mutant)
             
             om.out.debug(v.get_desc())
+            om.out.vulnerability("SQL injection", severity=severity.HIGH)
 
             v['type'] = statement_type
             v['true_html'] = second_true_response.get_body()
@@ -197,7 +198,7 @@ class BlindSqliResponseDiff(object):
         return None
 
     def debug(self, msg):
-        om.out.debug('[blind_sqli_debug] ' + msg)
+        om.out.debug('[blind_sqli_debug] ' + msg)        
 
     def equal_with_limit(self, body1, body2, compare_diff=False):
         """

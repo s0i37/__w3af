@@ -29,7 +29,9 @@ from w3af.core.controllers.plugins.output_plugin import OutputPlugin
 from w3af.core.controllers.exceptions import ScanMustStopByKnownReasonExc
 from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_list import OptionList
+from w3af.core.data.constants.severity import HIGH, MEDIUM, LOW, INFORMATION
 
+from colorama import Fore, Back
 
 def catch_ioerror(meth):
     """
@@ -81,6 +83,31 @@ class console(OutputPlugin):
         if self.verbose:
             self._print_to_stdout(message, new_line)
 
+    def log_http(self, request, response, new_line=True):
+        #import pdb; pdb.set_trace()
+        code = int( response.get_code() )
+        size = len( response.get_body() )
+        time = response.get_wait_time()
+        code_str = ( Fore.RED if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
+        size_str = Fore.LIGHTYELLOW_EX + str(size)
+        time_str = ( Fore.RED if time > 1 else Fore.LIGHTYELLOW_EX ) + "%.04f" % time
+        print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=request.get_full_url() ) ,
+        print Fore.LIGHTYELLOW_EX + "-> [{code}] [{size}B] [{time}s]".format( code=code_str, size=size_str, time=time_str )
+        if request.get_method() in ('POST', 'PUT', 'PATCH'):
+            print Fore.GREEN + request.get_data()
+        print Fore.RESET
+
+
+    def vulnerability(self, message, new_line=True, severity=MEDIUM):
+        if severity == HIGH:
+            print Fore.WHITE + Back.RED + "[!] %s" % message + Fore.RESET + Back.RESET
+        elif severity == MEDIUM:
+            print Fore.WHITE + Back.YELLOW + "[!] %s" % message + Fore.RESET + Back.RESET
+        elif severity == LOW:
+            print Fore.WHITE + Back.GREEN + "[!] %s" % message + Fore.RESET + Back.RESET
+        elif severity == INFORMATION:
+            print Fore.WHITE + Back.BLUE + "[i] %s" % message + Fore.RESET + Back.RESET
+
     @catch_ioerror
     def _generic(self, message, new_line=True, severity=None):
         """
@@ -90,7 +117,7 @@ class console(OutputPlugin):
         """
         self._print_to_stdout(message, new_line)
 
-    error = console = vulnerability = information = _generic
+    error = console = information = _generic
 
     def get_long_desc(self):
         """

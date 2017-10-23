@@ -53,7 +53,6 @@ class import_sqlite(CrawlPlugin):
             try:
                 self.debug( "+ %s %s" % (method,uri) )
                 headers = Headers.from_string( str(headers) )
-                #self.debug( "%s %s" % (data, type(data)) )
                 self.output_queue.put(
                 	FuzzableRequest.from_parts( uri, method=method, post_data=str(data), headers=headers )
                 	)
