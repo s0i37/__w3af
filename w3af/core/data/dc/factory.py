@@ -24,12 +24,13 @@ import w3af.core.controllers.output_manager as om
 
 from w3af.core.data.dc.urlencoded_form import URLEncodedForm
 from w3af.core.data.dc.json_container import JSONContainer
-from w3af.core.data.dc.xmlrpc import XmlRpcContainer
+from w3af.core.data.dc.xml_container import XMLContainer
+#from w3af.core.data.dc.xmlrpc import XmlRpcContainer
 from w3af.core.data.dc.multipart_container import MultipartContainer
 from w3af.core.data.dc.headers import Headers
 from w3af.core.data.dc.generic.plain import PlainContainer
 
-POST_DATA_CONTAINERS = (MultipartContainer, JSONContainer, XmlRpcContainer,
+POST_DATA_CONTAINERS = (MultipartContainer, JSONContainer, XMLContainer,
                         URLEncodedForm)
 
 
