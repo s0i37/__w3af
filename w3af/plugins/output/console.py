@@ -24,6 +24,7 @@ import sys
 
 from functools import wraps
 from errno import ENOSPC
+from urllib import unquote
 
 from w3af.core.controllers.plugins.output_plugin import OutputPlugin
 from w3af.core.controllers.exceptions import ScanMustStopByKnownReasonExc
@@ -48,6 +49,11 @@ def catch_ioerror(meth):
 
     return wrapper
 
+def chksum(content=''):
+    summ = 0
+    for ch in content:
+        summ += ord(ch)
+    return "%04x" % (summ % 0x10000)
 
 class console(OutputPlugin):
     """
@@ -81,32 +87,35 @@ class console(OutputPlugin):
         an action for debug messages.
         """
         if self.verbose:
-            self._print_to_stdout(message, new_line)
+            print Fore.LIGHTBLACK_EX + message + Fore.RESET
 
     def log_http(self, request, response, new_line=True):
-        #import pdb; pdb.set_trace()
         code = int( response.get_code() )
         size = len( response.get_body() )
         time = response.get_wait_time()
         code_str = ( Fore.RED if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
         size_str = Fore.LIGHTYELLOW_EX + str(size)
-        time_str = ( Fore.RED if time > 1 else Fore.LIGHTYELLOW_EX ) + "%.04f" % time
-        print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=request.get_full_url() ) ,
-        print Fore.LIGHTYELLOW_EX + "-> [{code}] [{size}B] [{time}s]".format( code=code_str, size=size_str, time=time_str )
+        time_str = ( Fore.RED if time > 1 else Fore.LIGHTYELLOW_EX ) + "%.03f" % time
+        print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=unquote( request.get_full_url() ) ) ,
+        print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
         if request.get_method() in ('POST', 'PUT', 'PATCH'):
-            print Fore.GREEN + request.get_data()
+            print Fore.GREEN
+            print request.get_data()
         print Fore.RESET
+
+    def information(self,message):
+        print Fore.CYAN + message + Fore.RESET
 
 
     def vulnerability(self, message, new_line=True, severity=MEDIUM):
         if severity == HIGH:
-            print Fore.WHITE + Back.RED + "[!] %s" % message + Fore.RESET + Back.RESET
+            print Fore.WHITE + Back.RED + message + Fore.RESET + Back.RESET
         elif severity == MEDIUM:
-            print Fore.WHITE + Back.YELLOW + "[!] %s" % message + Fore.RESET + Back.RESET
+            print Fore.WHITE + Back.YELLOW + message + Fore.RESET + Back.RESET
         elif severity == LOW:
-            print Fore.WHITE + Back.GREEN + "[!] %s" % message + Fore.RESET + Back.RESET
+            print Fore.WHITE + Back.GREEN + message + Fore.RESET + Back.RESET
         elif severity == INFORMATION:
-            print Fore.WHITE + Back.BLUE + "[i] %s" % message + Fore.RESET + Back.RESET
+            print Fore.WHITE + Back.BLUE + message + Fore.RESET + Back.RESET
 
     @catch_ioerror
     def _generic(self, message, new_line=True, severity=None):
@@ -117,7 +126,10 @@ class console(OutputPlugin):
         """
         self._print_to_stdout(message, new_line)
 
-    error = console = information = _generic
+    console = _generic
+
+    def error(self, message):
+        print Fore.RED + message + Fore.RESET
 
     def get_long_desc(self):
         """
