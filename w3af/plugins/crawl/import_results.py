@@ -217,6 +217,8 @@ class BurpParser(object):
     """
     requests = []
     parsing_request = False
+    parsing_url = False
+    url = ''
     current_is_base64 = False
 
     def start(self, tag, attrib):
@@ -232,6 +234,7 @@ class BurpParser(object):
         """
         if tag == 'request':
             self.parsing_request = True
+            self.parsing_url = False
 
             if not 'base64' in attrib:
                 # Invalid file?
@@ -242,6 +245,9 @@ class BurpParser(object):
                 self.current_is_base64 = True
             else:
                 self.current_is_base64 = False
+        elif tag == 'url':
+            self.parsing_request = False
+            self.parsing_url = True
 
     def data(self, data):
         if self.parsing_request:
@@ -253,12 +259,16 @@ class BurpParser(object):
                 request_text = base64.b64decode(request_text_b64)
                 head, postdata = request_text.split('\r\n\r\n', 1)
 
-            fuzzable_request = http_request_parser(head, postdata)
+            fuzzable_request = http_request_parser(self.url, head, postdata)
             self.requests.append(fuzzable_request)
+        elif self.parsing_url:
+            self.url = data
 
     def end(self, tag):
         if tag == 'request':
             self.parsing_request = False
+        elif tag == 'url':
+            self.parsing_url = False
 
     def close(self):
         return self.requests

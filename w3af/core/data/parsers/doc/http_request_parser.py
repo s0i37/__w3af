@@ -80,7 +80,7 @@ def check_uri_syntax(uri, host=None):
     return res
 
 
-def http_request_parser(head, postdata):
+def http_request_parser(url, head, postdata):
     """
     This function parses HTTP Requests from a string to a FuzzableRequest.
 
@@ -141,7 +141,7 @@ def http_request_parser(head, postdata):
     host, _ = headers_inst.iget('host', None)
     
     try:
-        uri = URL(check_uri_syntax(uri, host))
+        uri = URL(check_uri_syntax(url, host))
     except ValueError, ve:
         raise BaseFrameworkException(str(ve))
 
