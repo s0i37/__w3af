@@ -50,7 +50,9 @@ class ssi(AuditPlugin):
 
         :param freq: A FuzzableRequest
         """
-        ssi_strings = self._get_ssi_strings()
+        ssi_strings = []
+        for string in self._get_ssi_strings():
+            ssi_strings.append(string)
         mutants = create_mutants(freq, ssi_strings, orig_resp=orig_response)
 
         self._send_mutants_in_threads(self._uri_opener.send_mutant,
@@ -87,6 +89,9 @@ class ssi(AuditPlugin):
 
         # Generic
         yield '{%s * %s}' % get_seeds()
+
+        # OGNL (struts2)
+        #yield '${%%{%s * %s}}' % get_seeds()
 
     def _get_expected_results(self, mutant):
         """
