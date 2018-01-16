@@ -88,7 +88,7 @@ class CoreStrategy(object):
         :return: No value is returned.
         """
         try:
-            self.verify_target_server()
+            #self.verify_target_server()
             
             self._setup_grep()
             self._setup_auth()
