@@ -39,6 +39,7 @@ class XMLContainer(DataContainer):
 
         self._xml = None
         self._raw_xml = None
+        self.doctype = ''
 
         self.parse_xml(xml_post_data)
 
@@ -92,7 +93,7 @@ class XMLContainer(DataContainer):
         """
         :return: string representation by writing back to XML string
         """
-        return xml_complex_str(self._xml)
+        return xml_complex_str(self._xml, self.doctype)
 
     def __repr__(self):
         return '<XMLContainer (token: %s)>' % self.get_token()

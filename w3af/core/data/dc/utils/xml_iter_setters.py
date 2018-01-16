@@ -135,10 +135,71 @@ def _xml_iter_setters(marbitrary_python_obj, key_names=[]):
             for k, v, s in _xml_iter_setters(value, key_names=array_key_names):
                 yield k, v, s
 
-'''
-OrderedDict([(u'category', OrderedDict([(u'@id', u'1'), ('#text', u'007')])), (u'name', OrderedDict([(u'first', u'val1'), (u'second', u'val2')]))])
-'''
-def xml_complex_str(arbitrary_xml):
+class XML:
+    def __init__(self, tag, parent=None):
+        self.tag = tag
+        self.text = ''
+        self.attrs = {}
+        self.children = []
+        if parent:
+            parent.children.append(self)
+
+    def __setitem__(self, item, val):
+        self.attrs[item] = val.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;')
+
+    def __call__(self, param):
+        self.text = param.replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&apos;')
+
+    def __str__(self):
+        out = "<%s" % self.tag
+        for attr,val in self.attrs.items():
+            out += ' %s="%s"' % (attr, val)
+        if self.children:
+            for children in self.children:
+                self.text += str(children)
+        out += '>%s</%s>' % (self.text, self.tag)
+        return out
+
+
+def xml_complex_str(arbitrary_xml, doctype):
+    xml_dict = arbitrary_xml.get_value()
+
+    def _xmliter(obj, elem):
+        if isinstance(obj, dict):
+            xmldict = obj
+            for key,val in xmldict.items():
+                if key.startswith('@'):
+                    while True:
+                        if isinstance( val, (MutableWrapper, DataToken) ):
+                            val = val.get_value()
+                        else:
+                            elem[ key[1:] ] = val
+                            break
+                elif key.startswith('#'):
+                    while True:
+                        if isinstance( val, (MutableWrapper, DataToken) ):
+                            val = val.get_value()
+                        else:
+                            elem(val)
+                            break
+                else:
+                    _xmliter( val, elem=XML(key, parent=elem) )
+        elif isinstance( obj, (MutableWrapper, DataToken) ):
+            _xmliter( obj.get_value(), elem=elem )
+        else:
+            value = obj
+            elem(value)
+        return elem
+    
+    xml_str = doctype
+    for root in xml_dict.keys():
+        xml_str += str( _xmliter( xml_dict[root], XML(root) ) )
+    return xml_str
+
+
+
+''' only well-formed documents
+def _old_xml_complex_str(arbitrary_xml, doctype):
     xml_dict = arbitrary_xml.get_value()
 
     def _xmliter(obj, elem):
@@ -170,5 +231,6 @@ def xml_complex_str(arbitrary_xml):
     
     xml_str = ''
     for root in xml_dict.keys():
-        xml_str += etree.tostring( _xmliter( xml_dict[root], etree.Element(root) ) )
+        xml_str += etree.tostring( _xmliter( xml_dict[root], etree.Element(root) ), doctype=doctype ) #, xml_declaration=True, encoding="UTF-8" )
     return xml_str
+'''
