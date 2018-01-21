@@ -44,7 +44,7 @@ from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_types import BOOL, REGEX
 from w3af.core.data.options.option_list import OptionList
 from w3af.core.data.request.fuzzable_request import FuzzableRequest
-from w3af.core.controllers.core_helpers.smart_selector import SmartBrowser, FUZZ_COMPARE_FACTOR
+from w3af.core.controllers.core_helpers.fuzzy_selector import FuzzyBrowser
 from colorama import Fore
 
 class web_spider(CrawlPlugin):
@@ -73,7 +73,7 @@ class web_spider(CrawlPlugin):
         self._follow_regex = '.*'
         self._only_forward = False
         self._compile_re()
-        self._smart_browser = SmartBrowser(FUZZ_COMPARE_FACTOR)
+        self._fuzzy_browser = FuzzyBrowser(80)
 
     def crawl(self, fuzzable_req):
         """
@@ -89,7 +89,7 @@ class web_spider(CrawlPlugin):
         # makes sense and will allow us to cover more code.
         #
         data_container = fuzzable_req.get_raw_data()
-        print Fore.GREEN + fuzzable_req.get_url() + Fore.RESET
+        #print Fore.GREEN + fuzzable_req.get_url() + Fore.RESET
         if isinstance(data_container, Form):
 
             if fuzzable_req.get_url() in self._already_filled_form:
@@ -315,11 +315,11 @@ class web_spider(CrawlPlugin):
         # But this does not, and it is friendlier than simply ignoring the
         # referer
         #
-        self._smart_browser.add_page( str(reference) )
-        if self._smart_browser.check_page( str(reference) ):
-            print Fore.BLUE + "[+] %s" % str(reference) + Fore.RESET
+        if self._fuzzy_browser.check_page( str(reference) ):
+            self._fuzzy_browser.add_page( str(reference) )
+            #print Fore.BLUE + "[+] %s" % str(reference) + Fore.RESET
         else:
-            print Fore.RED + "[-] %s (ignore)" % str(reference) + Fore.RESET
+            #print Fore.RED + "[-] %s" % str(reference) + Fore.RESET
             return
         referer = original_response.get_url().base_url().url_string
         headers = Headers([('Referer', referer)])
