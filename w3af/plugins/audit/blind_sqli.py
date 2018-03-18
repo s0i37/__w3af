@@ -48,6 +48,7 @@ class blind_sqli(AuditPlugin):
         # User configured variables
         self._eq_limit = 0.9
         self._timeout = 0
+        self._is_carefully = True
 
     def audit(self, freq, orig_response):
         """
@@ -82,8 +83,8 @@ class blind_sqli(AuditPlugin):
                 #
                 continue
 
-            if not blind_sqli_error.is_injectable_maybe(mutant):
-                break
+            if self._is_carefully and not blind_sqli_error.is_injectable_maybe(mutant):
+                continue
 
             for method in method_list:
                 found_vuln = method.is_injectable(mutant)
@@ -116,9 +117,12 @@ class blind_sqli(AuditPlugin):
         h1 = 'Two pages are considered equal if they match in more'\
             ' than eq_limit.'
         h2 = 'Timeout between fuzzing requests'
+        h3 = 'Perform a primary sql-injection check'
         opt = opt_factory('eq_limit', self._eq_limit, 'String equal ratio (0.0 to 1.0)', 'float', help=h1)
         opt_list.add(opt)
         opt = opt_factory('timeout', self._timeout, 'Requests timeout', 'float', help=h2)
+        opt_list.add(opt)
+        opt = opt_factory('is_carefully', self._is_carefully, 'Do a primary check?', 'boolean', help=h3)
         opt_list.add(opt)
 
         return opt_list
@@ -133,6 +137,7 @@ class blind_sqli(AuditPlugin):
         """
         self._eq_limit = options_list['eq_limit'].get_value()
         self._timeout = options_list['timeout'].get_value()
+        self._is_carefully = options_list['is_carefully'].get_value()
 
     def get_long_desc(self):
         """
@@ -142,6 +147,8 @@ class blind_sqli(AuditPlugin):
         This plugin finds blind SQL injections using two techniques: time delays
         and true/false response comparison.
 
-        Only one configurable parameters exists:
+        Configurable parameters exists:
             - eq_limit
+            - timeout
+            - is_carefully
         """
