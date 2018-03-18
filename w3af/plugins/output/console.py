@@ -94,7 +94,7 @@ class console(OutputPlugin):
         code = int( response.get_code() )
         size = len( response.get_body() )
         time = response.get_wait_time()
-        code_str = ( Fore.RED if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
+        code_str = ( Fore.LIGHTRED_EX if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
         size_str = Fore.LIGHTYELLOW_EX + str(size)
         time_str = Fore.LIGHTYELLOW_EX + "%.03f" % time
         uri = unquote( request.get_full_url() )
@@ -102,14 +102,14 @@ class console(OutputPlugin):
         if isinstance(request._from, Mutant):
             inject_point = request._from.get_token_value()
         if inject_point:
-            uri = uri.replace( inject_point, Fore.RED + inject_point + Fore.LIGHTGREEN_EX )
+            uri = uri.replace( inject_point, Fore.LIGHTRED_EX + inject_point + Fore.LIGHTGREEN_EX )
         print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=uri ) ,
         print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
         if request.get_method() in ('POST', 'PUT', 'PATCH'):
             print Fore.GREEN
-            postdata = request.get_data()
+            postdata = unquote( request.get_data() )
             if inject_point:
-                postdata = postdata.replace( inject_point, Fore.RED + inject_point + Fore.GREEN )
+                postdata = postdata.replace( inject_point, Fore.LIGHTRED_EX + inject_point + Fore.GREEN )
             print postdata
         print Fore.RESET
 
@@ -139,7 +139,7 @@ class console(OutputPlugin):
     console = _generic
 
     def error(self, message):
-        print Fore.LIGHTRED_EX + message + Fore.RESET
+        print Fore.RED + message + Fore.RESET
 
     def get_long_desc(self):
         """
