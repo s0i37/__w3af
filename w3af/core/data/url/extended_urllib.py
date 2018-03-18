@@ -534,7 +534,7 @@ class ExtendedUrllib(object):
     def send_mutant(self, mutant, callback=None, grep=True, cache=True,
                     cookies=True, error_handling=True, timeout=None):
         """
-        Sends a mutant to the remote web server.
+        Sends a mutant/freq to the remote web server.
 
         :param callback: If None, return the HTTP response object, else call
                          the callback with the mutant and the http response as
@@ -564,7 +564,8 @@ class ExtendedUrllib(object):
             'cache': cache,
             'cookies': cookies,
             'error_handling': error_handling,
-            'timeout': timeout
+            'timeout': timeout,
+            '_from': mutant
         }
         method = mutant.get_method()
 
@@ -581,7 +582,7 @@ class ExtendedUrllib(object):
 
     def GET(self, uri, data=None, headers=Headers(), cache=False,
             grep=True, cookies=True, respect_size_limit=True,
-            error_handling=True, timeout=None):
+            error_handling=True, timeout=None, _from=None):
         """
         HTTP GET a URI using a proxy, user agent, and other settings
         that where previously set in opener_settings.py .
@@ -625,12 +626,13 @@ class ExtendedUrllib(object):
                           retries=self.settings.get_max_retrys(),
                           timeout=timeout, new_connection=new_connection)
         req = self.add_headers(req, headers)
+        req._from = _from
 
         with raise_size_limit(respect_size_limit):
             return self.send(req, grep=grep)
 
     def POST(self, uri, data='', headers=Headers(), grep=True, cache=False,
-             cookies=True, error_handling=True, timeout=None):
+             cookies=True, error_handling=True, timeout=None, _from=None):
         """
         POST's data to a uri using a proxy, user agents, and other settings
         that where set previously.
@@ -668,6 +670,7 @@ class ExtendedUrllib(object):
                           retries=self.settings.get_max_retrys(),
                           timeout=timeout, new_connection=new_connection)
         req = self.add_headers(req, headers)
+        req._from = _from
 
         return self.send(req, grep=grep)
 

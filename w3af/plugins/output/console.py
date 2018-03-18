@@ -31,6 +31,7 @@ from w3af.core.controllers.exceptions import ScanMustStopByKnownReasonExc
 from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_list import OptionList
 from w3af.core.data.constants.severity import HIGH, MEDIUM, LOW, INFORMATION
+from w3af.core.data.fuzzer.mutants.mutant import Mutant
 
 from colorama import Fore, Back
 
@@ -95,12 +96,21 @@ class console(OutputPlugin):
         time = response.get_wait_time()
         code_str = ( Fore.RED if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
         size_str = Fore.LIGHTYELLOW_EX + str(size)
-        time_str = ( Fore.RED if time > 1 else Fore.LIGHTYELLOW_EX ) + "%.03f" % time
-        print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=unquote( request.get_full_url() ) ) ,
+        time_str = Fore.LIGHTYELLOW_EX + "%.03f" % time
+        uri = unquote( request.get_full_url() )
+        inject_point = None
+        if isinstance(request._from, Mutant):
+            inject_point = request._from.get_token_value()
+        if inject_point:
+            uri = uri.replace( inject_point, Fore.RED + inject_point + Fore.LIGHTGREEN_EX )
+        print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=uri ) ,
         print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
         if request.get_method() in ('POST', 'PUT', 'PATCH'):
             print Fore.GREEN
-            print request.get_data()
+            postdata = request.get_data()
+            if inject_point:
+                postdata = postdata.replace( inject_point, Fore.RED + inject_point + Fore.GREEN )
+            print postdata
         print Fore.RESET
 
     def information(self,message):
@@ -129,7 +139,7 @@ class console(OutputPlugin):
     console = _generic
 
     def error(self, message):
-        print Fore.RED + message + Fore.RESET
+        print Fore.LIGHTRED_EX + message + Fore.RESET
 
     def get_long_desc(self):
         """
