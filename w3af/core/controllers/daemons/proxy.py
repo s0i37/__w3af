@@ -334,7 +334,7 @@ class w3afProxyHandler(BaseHTTPRequestHandler):
                 httpsServer.w3afLayer = self.server.w3afLayer
 
                 om.out.debug("SSL 'self.connection' connection state=" +
-                             browser_sslconn.state_string())
+                             browser_sslconn.get_state_string())
 
                 conWrap = SSLConnectionWrapper(browser_sslconn, browser_socket)
                 try:
