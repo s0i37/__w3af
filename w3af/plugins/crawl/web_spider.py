@@ -41,7 +41,7 @@ from w3af.core.data.dc.factory import dc_from_form_params
 from w3af.core.data.dc.generic.form import Form
 from w3af.core.data.dc.cookie import Cookie
 from w3af.core.data.options.opt_factory import opt_factory
-from w3af.core.data.options.option_types import BOOL, REGEX
+from w3af.core.data.options.option_types import BOOL, REGEX, INT
 from w3af.core.data.options.option_list import OptionList
 from w3af.core.data.request.fuzzable_request import FuzzableRequest
 from w3af.core.controllers.core_helpers.fuzzy_selector import FuzzyBrowser
@@ -71,9 +71,10 @@ class web_spider(CrawlPlugin):
         # User configured variables
         self._ignore_regex = ''
         self._follow_regex = '.*'
+        self._ignore_factor = 50
         self._only_forward = False
         self._compile_re()
-        self._fuzzy_browser = FuzzyBrowser(80)
+        self._fuzzy_browser = FuzzyBrowser(self._ignore_factor)
 
     def crawl(self, fuzzable_req):
         """
@@ -317,9 +318,7 @@ class web_spider(CrawlPlugin):
         #
         if self._fuzzy_browser.check_page( str(reference) ):
             self._fuzzy_browser.add_page( str(reference) )
-            #print Fore.BLUE + "[+] %s" % str(reference) + Fore.RESET
         else:
-            #print Fore.RED + "[-] %s" % str(reference) + Fore.RESET
             return
         referer = original_response.get_url().base_url().url_string
         headers = Headers([('Referer', referer)])
@@ -436,6 +435,10 @@ class web_spider(CrawlPlugin):
         o = opt_factory('ignore_regex', self._ignore_regex, d, REGEX)
         ol.add(o)
 
+        d = 'fuzzy_ignore_factor 0-100 (100-minimal ignore, 0-maximum ignore)'
+        o = opt_factory('fuzzy_ignore_factor', self._ignore_factor, d, INT)
+        ol.add(o)
+
         return ol
 
     def set_options(self, options_list):
@@ -449,6 +452,7 @@ class web_spider(CrawlPlugin):
         self._only_forward = options_list['only_forward'].get_value()
         self._ignore_regex = options_list['ignore_regex'].get_value()
         self._follow_regex = options_list['follow_regex'].get_value()
+        self._ignore_factor = options_list['fuzzy_ignore_factor'].get_value()
         self._compile_re()
 
     def _compile_re(self):
@@ -483,6 +487,7 @@ class web_spider(CrawlPlugin):
             - only_forward
             - ignore_regex
             - follow_regex
+            - fuzzy_ignore_factor
 
         ignore_regex and follow_regex are commonly used to configure the
         web_spider to spider all URLs except the "logout" or some other more
