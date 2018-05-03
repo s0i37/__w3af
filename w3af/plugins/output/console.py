@@ -94,9 +94,12 @@ class console(OutputPlugin):
         code = int( response.get_code() )
         size = len( response.get_body() )
         time = response.get_wait_time()
-        code_str = ( Fore.LIGHTRED_EX if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
-        size_str = Fore.LIGHTYELLOW_EX + str(size)
-        time_str = Fore.LIGHTYELLOW_EX + "%.03f" % time
+        #code_str = ( Fore.LIGHTRED_EX if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
+        #size_str = Fore.LIGHTYELLOW_EX + str(size)
+        #time_str = Fore.LIGHTYELLOW_EX + "%.03f" % time
+        code_str = str(code)
+        size_str = str(size)
+        time_str = "%.03f" % time
         uri = unquote( request.get_full_url() )
         inject_point = None
         if isinstance(request._from, Mutant):
@@ -105,7 +108,7 @@ class console(OutputPlugin):
             uri = uri.replace( inject_point, Fore.LIGHTRED_EX + inject_point + Fore.LIGHTGREEN_EX )
         print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=uri ) ,
         print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
-        if request.get_method() in ('POST', 'PUT', 'PATCH'):
+        if request.get_data():
             print Fore.GREEN
             postdata = unquote( request.get_data() )
             if inject_point:
