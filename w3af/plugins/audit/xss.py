@@ -42,13 +42,16 @@ class xss(AuditPlugin):
     :author: Andres Riancho ( andres.riancho@gmail.com )
     :author: Taras ( oxdef@oxdef.info )
     """
+    '''
     PAYLOADS = ['RANDOMIZE</->',
                 'RANDOMIZE/*',
                 'RANDOMIZE"RANDOMIZE',
                 "RANDOMIZE'RANDOMIZE",
                 "RANDOMIZE`RANDOMIZE",
                 "RANDOMIZE ="]
-        
+    '''
+    PAYLOADS = ['RANDOMIZE</>']
+
     def __init__(self):
         AuditPlugin.__init__(self)
         
