@@ -47,14 +47,14 @@ pop graphic-context
 			if isinstance(mutant, FileContentMutant):
 				try:
 					response = self._uri_opener.send_mutant( mutant, cache=False, timeout=10 )
-					if self.check(self.fqdn_imagemagic_exist):
+					if self.check('get.' + self.fqdn_imagemagic_exist):
 						desc = 'Imagemagic found: "%s"' % response.get_uri()
 						i = Info('Imagemagic detected', desc, response.id, self.get_name())
 						i.add_to_highlight('Imagemagic')
 						i.set_url(url)
 						self.kb_append_uniq('imagemagic', i)
 
-					if self.check(self.fqdn_imagemagic_vuln):
+					if self.check('get.' + self.fqdn_imagemagic_vuln):
 						desc = 'Imagemagic OS-injection at: "%s", using'\
 							' HTTP method %s. The injectable parameter may be: "%s"'
 						desc = desc % ( mutant.get_url(),
@@ -72,7 +72,7 @@ pop graphic-context
 					om.out.debug( str(e) )
 
 	def check(self, fqdn):
-		return self._resolver.query_norecure(fqdn) == []
+		return self._resolver.query(fqdn) == []
 
 	def get_options(self):
 		"""
