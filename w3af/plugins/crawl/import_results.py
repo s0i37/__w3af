@@ -125,7 +125,7 @@ class import_results(CrawlPlugin):
         :return: A FuzzableRequest based on the csv_line read from the file.
         """
         try:
-            method, uri, postdata = csv_row
+            method, uri, headers, postdata = csv_row
         except ValueError, value_error:
             msg = 'The file format is incorrect, an error was found while'\
                   ' parsing: "%s". Exception: "%s".'
@@ -137,9 +137,13 @@ class import_results(CrawlPlugin):
                 return
 
             # If there is postdata, force parsing using urlencoded form
-            headers = None
+            headers = Headers.from_string( str(headers) )
+            '''self.output_queue.put(
+                                                    FuzzableRequest.from_parts( uri, method=method, post_data=str(data), headers=headers )
+                                                    )'''
             if postdata:
                 headers = Headers([('content-type', URLEncodedForm.ENCODING)])
+
 
             return FuzzableRequest.from_parts(uri, method=method,
                                               post_data=postdata,
