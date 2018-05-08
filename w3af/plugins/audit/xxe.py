@@ -41,7 +41,7 @@ class xxe(AuditPlugin):
 				mutant.get_dc().doctype += ']>'
 				try:
 					response = self._uri_opener.send_mutant( mutant, cache=False, timeout=10 )
-					if self.check(self.fqdn):
+					if self.check('get.' + self.fqdn):
 						desc = 'XXE injection at: "%s", using'\
 							' HTTP method %s. The injectable parameter may be: "%s"'
 						desc = desc % ( mutant.get_url(),
@@ -58,7 +58,7 @@ class xxe(AuditPlugin):
 					om.out.debug( str(e) )
 
 	def check(self, fqdn):
-		return self._resolver.query_norecure(fqdn) == []
+		return self._resolver.query(fqdn) == []
 
 	def get_options(self):
 		"""
