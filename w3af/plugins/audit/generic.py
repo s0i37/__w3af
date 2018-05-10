@@ -95,6 +95,16 @@ class generic(AuditPlugin):
                 # Now I compare responses
                 self._analyze_responses(orig_response, limit_response,
                                         error_response, m)
+            m.set_token_value("")
+            void_response = self._uri_opener.send_mutant(m)
+            old_token_name = m.get_token_name()
+            if old_token_name.index('[') != -1:
+                new_token_name = old_token_name[ 0:old_token_name.index('[') ]
+            else:
+                new_token_name = m.get_token_name()+'[]'
+            m.get_dc()[new_token_name] = m.get_dc().pop(old_token_name)
+            error_response = self._uri_opener.send_mutant(m)
+            self._compare_responses(void_response, error_response, m)
 
     def _analyze_responses(self, orig_resp, limit_response, error_response, mutant):
         """
@@ -130,6 +140,12 @@ class generic(AuditPlugin):
                                               mutant.get_token_name(),
                                               mutant, id_list))
 
+    def _compare_responses(self, void_response, error_response, mutant):
+        if len( void_response.get_body() ) != len( error_response.get_body() ):
+            self._potential_vulns.append( (mutant.get_url(), mutant.get_token_name(), mutant, [void_response.id,error_response.id]) )
+        elif void_response.get_code() != error_response.get_code():
+            self._potential_vulns.append( (mutant.get_url(), mutant.get_token_name(), mutant, [void_response.id,error_response.id]) )
+            
     def _get_limit_response(self, mutant):
         """
         We request the limit (something that doesn't exist)
