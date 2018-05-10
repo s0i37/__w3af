@@ -61,20 +61,16 @@ class Blind_sqli_error(DelayMixIn):
         
         syntax_error = "1\"2'3\\"
         resp_len_orig = len( self._orig_response.get_body() )
+        resp_code_orig = self._orig_response.get_code()
 
         mutant.set_token_value( syntax_error )
-        (resp_len_invalid, resp_time_invalid) = self._do_request(mutant)
-        if resp_len_invalid == resp_len_orig:
+        (resp_len_invalid, resp_time_invalid, resp_code_invalid) = self._do_request(mutant)
+        if resp_len_invalid == resp_len_orig and resp_code_invalid == resp_code_orig:
             return False
 
-        #mutant.set_token_value( syntax_error * 2 )
-        #(resp_len_invalid2, resp_time_invalid2) = self._do_request(mutant)
-        #if -1 != resp_len_invalid != resp_len_invalid2:
-        #    return False
-
         mutant.set_token_value( self._get_random_letters(10) )
-        (resp_len_valid, resp_time_valid) = self._do_request(mutant)
-        if resp_len_valid == resp_len_invalid:
+        (resp_len_valid, resp_time_valid, resp_code_valid) = self._do_request(mutant)
+        if resp_len_valid == resp_len_orig and resp_code_valid == resp_code_orig:
             return False
 
         return True
@@ -87,10 +83,11 @@ class Blind_sqli_error(DelayMixIn):
             response = self._uri_opener.send_mutant( mutant, cache=False, timeout=10 )
             response_len = len( response.get_body() )
             response_time = response.get_wait_time()
-            return ( response_len, response_time )
+            response_code = response.get_code()
+            return ( response_len, response_time, response_code )
         except HTTPRequestException:
             self.debug("HTTPRequestException")
-            return (-1, -1)
+            return (-1, -1, -1)
 
     def _get_random_letters(self, maxlen=15):
         letters_chars = bytearray( string.letters )
