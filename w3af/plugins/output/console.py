@@ -104,15 +104,16 @@ class console(OutputPlugin):
         inject_point = None
         if isinstance(request._from, Mutant):
             inject_point = request._from.get_token_value()
+            param = request._from.get_token_name()
         if inject_point:
-            uri = uri.replace( inject_point, Fore.LIGHTRED_EX + inject_point + Fore.LIGHTGREEN_EX )
+            uri = uri.replace( "%s=%s"%(param,inject_point), Fore.LIGHTRED_EX + "%s=%s"%(param,inject_point) + Fore.LIGHTGREEN_EX )
         print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=uri ) ,
         print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
         if request.get_data():
             print Fore.GREEN
             postdata = unquote( request.get_data() )
             if inject_point:
-                postdata = postdata.replace( inject_point, Fore.LIGHTRED_EX + inject_point + Fore.GREEN )
+                postdata = postdata.replace( "%s=%s"%(param,inject_point), Fore.LIGHTRED_EX + "%s=%s"%(param,inject_point) + Fore.LIGHTGREEN_EX )
             print postdata
         print Fore.RESET
 
