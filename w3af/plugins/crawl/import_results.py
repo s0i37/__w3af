@@ -125,7 +125,11 @@ class import_results(CrawlPlugin):
         :return: A FuzzableRequest based on the csv_line read from the file.
         """
         try:
-            method, uri, headers, postdata = csv_row
+            if len(csv_row) == 4:
+                method, uri, headers, postdata = csv_row
+            elif len(csv_row) == 3:
+                method, uri, postdata = csv_row
+                headers = None
         except ValueError, value_error:
             msg = 'The file format is incorrect, an error was found while'\
                   ' parsing: "%s". Exception: "%s".'
@@ -137,17 +141,20 @@ class import_results(CrawlPlugin):
                 return
 
             # If there is postdata, force parsing using urlencoded form
-            headers = Headers.from_string( str(headers) )
-            '''self.output_queue.put(
-                                                    FuzzableRequest.from_parts( uri, method=method, post_data=str(data), headers=headers )
-                                                    )'''
-            if postdata:
-                headers = Headers([('content-type', URLEncodedForm.ENCODING)])
-
-
+            if headers:
+                if headers.find('\r\n') == -1:
+                    headers = headers.replace('\n','\r\n')
+                print headers
+                headers = Headers.from_string( str(headers) )
+                if postdata:
+                    headers['content-type'] = URLEncodedForm.ENCODING
+            else:
+                if postdata:
+                    headers = Headers([('content-type', URLEncodedForm.ENCODING)])
+            
             return FuzzableRequest.from_parts(uri, method=method,
-                                              post_data=postdata,
-                                              headers=headers)
+                                                  post_data=postdata,
+                                                  headers=headers)
 
     def _objs_from_burp_log(self, burp_file):
         """
