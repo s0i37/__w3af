@@ -75,6 +75,8 @@ class web_spider(CrawlPlugin):
         self._only_forward = False
         self._compile_re()
         self._fuzzy_browser = FuzzyBrowser(self._ignore_factor)
+        self._requests_count = 0
+        self._max_requests_count = 100
 
     def crawl(self, fuzzable_req):
         """
@@ -148,7 +150,9 @@ class web_spider(CrawlPlugin):
                 # instances, which is a DataContainer. Much better than the
                 # FormParameters instance we had before in form_params_variant
                 r = FuzzableRequest.from_form(data_container, headers=headers)
-                self.output_queue.put(r)
+                self._requests_count += 1
+                if self._requests_count <= self._max_requests_count:
+                    self.output_queue.put(r)
 
     def _handle_first_run(self):
         if self._first_run:
@@ -383,7 +387,9 @@ class web_spider(CrawlPlugin):
 
             fuzz_req.set_referer(referer)
             fuzz_req.set_cookie(cookie)
-            self.output_queue.put(fuzz_req)
+            self._requests_count += 1
+            if self._requests_count <= self._max_requests_count:
+                self.output_queue.put(fuzz_req)
 
     def end(self):
         """
@@ -439,6 +445,10 @@ class web_spider(CrawlPlugin):
         o = opt_factory('fuzzy_ignore_factor', self._ignore_factor, d, INT)
         ol.add(o)
 
+        d = 'maximum allowed count of requests'
+        o = opt_factory('max_requests_count', self._max_requests_count, d, INT)
+        ol.add(o)
+
         return ol
 
     def set_options(self, options_list):
@@ -452,7 +462,9 @@ class web_spider(CrawlPlugin):
         self._only_forward = options_list['only_forward'].get_value()
         self._ignore_regex = options_list['ignore_regex'].get_value()
         self._follow_regex = options_list['follow_regex'].get_value()
+
         self._ignore_factor = options_list['fuzzy_ignore_factor'].get_value()
+        self._max_requests_count = options_list['max_requests_count'].get_value()
         self._compile_re()
 
     def _compile_re(self):
@@ -488,6 +500,7 @@ class web_spider(CrawlPlugin):
             - ignore_regex
             - follow_regex
             - fuzzy_ignore_factor
+            - max_requests_count
 
         ignore_regex and follow_regex are commonly used to configure the
         web_spider to spider all URLs except the "logout" or some other more
