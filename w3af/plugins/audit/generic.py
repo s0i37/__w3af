@@ -98,11 +98,15 @@ class generic(AuditPlugin):
             m.set_token_value("")
             void_response = self._uri_opener.send_mutant(m)
             old_token_name = m.get_token_name()
-            if old_token_name.index('[') != -1:
+            if old_token_name.find('[') != -1:
                 new_token_name = old_token_name[ 0:old_token_name.index('[') ]
             else:
                 new_token_name = m.get_token_name()+'[]'
-            m.get_dc()[new_token_name] = m.get_dc().pop(old_token_name)
+            if m.get_dc().get(old_token_name):
+                m.get_dc()[new_token_name] = m.get_dc().pop(old_token_name)
+            else:
+                m.get_dc()[new_token_name] = ''
+            m.get_dc().token._name = new_token_name
             error_response = self._uri_opener.send_mutant(m)
             self._compare_responses(void_response, error_response, m)
 
