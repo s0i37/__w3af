@@ -85,7 +85,7 @@ class AbstractNtlmAuthHandler(urllib2.BaseHandler):
                                                                          domain_name,
                                                                          pw, flags)
                 request.add_unredirected_header(self.auth_header, auth)
-                return self.parent.open(request, timeout=request.timeout)
+                return self.parent.open(request)
         else:
             return None
 
