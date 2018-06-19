@@ -80,7 +80,7 @@ class import_results(CrawlPlugin):
             om.out.error(msg % (self._input_csv, e))
             return
 
-        reader = csv.reader(file_handler, quoting=csv.QUOTE_ALL)
+        reader = csv.reader(file_handler, quoting=csv.QUOTE_ALL, quotechar="'")
 
         while True:
             try:
@@ -130,6 +130,8 @@ class import_results(CrawlPlugin):
             elif len(csv_row) == 3:
                 method, uri, postdata = csv_row
                 headers = None
+            else:
+                return
         except ValueError, value_error:
             msg = 'The file format is incorrect, an error was found while'\
                   ' parsing: "%s". Exception: "%s".'
@@ -144,10 +146,7 @@ class import_results(CrawlPlugin):
             if headers:
                 if headers.find('\r\n') == -1:
                     headers = headers.replace('\n','\r\n')
-                print headers
                 headers = Headers.from_string( str(headers) )
-                if postdata:
-                    headers['content-type'] = URLEncodedForm.ENCODING
             else:
                 if postdata:
                     headers = Headers([('content-type', URLEncodedForm.ENCODING)])
