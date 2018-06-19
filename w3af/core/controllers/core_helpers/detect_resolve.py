@@ -9,7 +9,7 @@ class Resolver:
 			for ip in self._resolver.query( str(ns), "A" ):
 				nameservers.append( str(ip) )
 		self._resolver.nameservers = nameservers
-		print str(self._resolver.nameservers)
+		#print str(self._resolver.nameservers)
 
 	def query(self, fqdn, qtype='A'):
 		#self._resolver.set_flags(0x20) # rd=0

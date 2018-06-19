@@ -7,6 +7,7 @@ from w3af.core.controllers.misc.decorators import runonce
 from w3af.core.controllers.exceptions import RunOnce
 from w3af.core.data.dc.headers import Headers
 from w3af.core.data.kb.vuln import Vuln
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.core_helpers.detect_resolve import Resolver
 
@@ -44,7 +45,7 @@ class httpoxy(InfrastructurePlugin):
 			self.kb_append_uniq(self, 'httpoxy', v)
 
 	def check(self, fqdn):
-		return self._resolver.query(fqdn) == []
+		return self._resolver.query(fqdn) != []
 
 	def get_options(self):
 		"""

