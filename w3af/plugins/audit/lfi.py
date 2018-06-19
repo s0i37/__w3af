@@ -154,7 +154,7 @@ class lfi(AuditPlugin):
                 desc = desc % mutant.found_at()
                 
                 v = Vuln.from_mutant('Local file inclusion vulnerability',
-                                     desc, severity.MEDIUM, response.id,
+                                     desc, severity.HIGH, response.id,
                                      self.get_name(), mutant)
 
                 v['file_pattern'] = file_pattern_match
@@ -178,7 +178,7 @@ class lfi(AuditPlugin):
                        ' found at: %s' % mutant.found_at()
                 
                 v = Vuln.from_mutant('Local file inclusion vulnerability',
-                                     desc, severity.MEDIUM, response.id,
+                                     desc, severity.HIGH, response.id,
                                      self.get_name(), mutant)
 
                 #

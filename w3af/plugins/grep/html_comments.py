@@ -31,7 +31,8 @@ import w3af.core.data.kb.knowledge_base as kb
 from w3af.core.data.esmre.multi_in import multi_in
 from w3af.core.data.db.disk_dict import DiskDict
 from w3af.core.data.bloomfilter.scalable_bloom import ScalableBloomFilter
-from w3af.core.data.kb.info import Info
+import w3af.core.data.constants.severity as severity
+from w3af.core.data.kb.vuln import Vuln
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.controllers.exceptions import BaseFrameworkException
 
@@ -110,12 +111,11 @@ class html_comments(GrepPlugin):
                     ' This could be interesting.')
             desc %= (word, response.get_url())
 
-            i = Info.from_fr('Interesting HTML comment', desc, response.id,
+            v = Vuln.from_fr('Interesting HTML comment', desc, severity.INFORMATION, response.id,
                              self.get_name(), request)
-            i.add_to_highlight(word)
+            v.add_to_highlight(word)
 
-            kb.kb.append(self, 'interesting_comments', i)
-            om.out.information(i.get_desc())
+            kb.kb.append(self, 'interesting_comments', v)
                 
             self._already_reported.add((word, response.get_url()))
 
@@ -141,13 +141,13 @@ class html_comments(GrepPlugin):
                 ' This could be interesting.')
         desc %= (comment, response.get_url())
 
-        i = Info.from_fr('HTML comment contains HTML code', desc, response.id,
+        v = Vuln.from_fr('HTML comment contains HTML code', desc, severity.INFORMATION, response.id,
                          self.get_name(), request)
-        i.set_uri(response.get_uri())
-        i.add_to_highlight(html_in_comment.group(0))
-
-        kb.kb.append(self, 'html_comment_hides_html', i)
-        om.out.information(i.get_desc())
+        v.set_uri(response.get_uri())
+        v.add_to_highlight(html_in_comment.group(0))
+        
+        om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
+        kb.kb.append(self, 'html_comment_hides_html', v)
         self._already_reported.add((comment, response.get_url()))
 
     def _is_new(self, comment, response):
@@ -187,10 +187,10 @@ class html_comments(GrepPlugin):
                 msg = ('A comment with the string "%s..." (and %s more bytes)'
                        ' was found on these URL(s):')
                 args = (stick_comment[:40], str(len(stick_comment) - 40))
-                om.out.information(msg % args)
+                om.out.vulnerability(msg % args, severity=severity.INFORMATION)
             else:
                 msg = 'A comment containing "%s" was found on these URL(s):'
-                om.out.information(msg % stick_comment)
+                om.out.vulnerability(msg % stick_comment, severity=severity.INFORMATION)
 
             inform = []
 
@@ -199,7 +199,7 @@ class html_comments(GrepPlugin):
                 inform.append(msg % (url, request_id))
 
             for i in sorted(inform):
-                om.out.information(i)
+                om.out.vulnerability(i, severity=severity.INFORMATION)
 
         self._comments.cleanup()
 

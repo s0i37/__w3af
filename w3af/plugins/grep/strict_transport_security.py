@@ -24,7 +24,7 @@ from w3af.core.data.kb.info_set import InfoSet
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 
 STS_HEADER = 'Strict-Transport-Security'
-MAX_REPORTS = 50
+MAX_REPORTS = 5
 
 
 class strict_transport_security(GrepPlugin):

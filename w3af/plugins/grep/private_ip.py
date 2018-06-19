@@ -23,6 +23,7 @@ import re
 import socket
 
 import w3af.core.data.constants.severity as severity
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.controllers.misc.get_local_ip import get_local_ip
@@ -107,7 +108,7 @@ class private_ip(GrepPlugin):
                 desc = desc % (response.get_url(), ip_address, header_name)
 
                 v = Vuln('Private IP disclosure vulnerability', desc,
-                         severity.LOW, response.id, self.get_name())
+                         severity.INFORMATION, response.id, self.get_name())
 
                 v.set_url(response.get_url())
                 v.add_to_highlight(ip_address)
@@ -115,6 +116,7 @@ class private_ip(GrepPlugin):
                 v['header_name'] = header_name
                 v[HeaderPrivateIPInfoSet.ITAG] = (ip_address, header_name)
 
+                om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
                 self.kb_append_uniq_group(self, 'header', v,
                                           group_klass=HeaderPrivateIPInfoSet)
 
@@ -153,7 +155,7 @@ class private_ip(GrepPlugin):
                        ' contains the private IP address: "%s".'
                 desc = desc % (response.get_url(), ip_address)
                 v = Vuln('Private IP disclosure vulnerability', desc,
-                         severity.LOW, response.id, self.get_name())
+                         severity.INFORMATION, response.id, self.get_name())
 
                 v.set_url(response.get_url())
                 v.add_to_highlight(ip_address)

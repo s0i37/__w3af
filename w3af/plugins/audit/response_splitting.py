@@ -30,7 +30,7 @@ from w3af.core.data.kb.vuln import Vuln
 from w3af.core.data.kb.info import Info
 
 HEADER_NAME = 'vulnerable073b'
-HEADER_VALUE = 'ae5cw3af'
+HEADER_VALUE = 'ae5c'
 
 
 class response_splitting(AuditPlugin):
@@ -39,9 +39,9 @@ class response_splitting(AuditPlugin):
     :author: Andres Riancho (andres.riancho@gmail.com)
     """
 
-    HEADER_INJECTION_TESTS = ("w3af\r\n" + HEADER_NAME + ": " + HEADER_VALUE,
-                              "w3af\r" + HEADER_NAME + ": " + HEADER_VALUE,
-                              "w3af\n" + HEADER_NAME + ": " + HEADER_VALUE)
+    HEADER_INJECTION_TESTS = ("123\r\n" + HEADER_NAME + ": " + HEADER_VALUE,
+                              "123\r" + HEADER_NAME + ": " + HEADER_VALUE,
+                              "123\n" + HEADER_NAME + ": " + HEADER_VALUE)
 
     # A list of error strings produced by the programming framework
     # when we try to modify a header, and the HTML output is already being

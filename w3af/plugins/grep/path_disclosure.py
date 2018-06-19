@@ -23,6 +23,7 @@ import re
 
 import w3af.core.data.kb.knowledge_base as kb
 import w3af.core.data.constants.severity as severity
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.data.parsers.mp_document_parser import mp_doc_parser

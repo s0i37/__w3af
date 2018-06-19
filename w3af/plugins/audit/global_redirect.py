@@ -36,8 +36,9 @@ class global_redirect(AuditPlugin):
     Find scripts that redirect the browser to any site.
     :author: Andres Riancho (andres.riancho@gmail.com)
     """
-    TEST_URLS = ('http://www.w3af.org/',
-                 '//w3af.org')
+    TEST_URLS = ('https://www.w3.org/',
+                 '//www.w3.org',
+                 'www.w3.org')
 
     def __init__(self):
         AuditPlugin.__init__(self)
@@ -67,7 +68,7 @@ class global_redirect(AuditPlugin):
         if self._find_redirect(response):
             desc = 'Global redirect was found at: ' + mutant.found_at()
             
-            v = Vuln.from_mutant('Insecure redirection', desc, severity.MEDIUM,
+            v = Vuln.from_mutant('Insecure redirection', desc, severity.LOW,
                                  response.id, self.get_name(), mutant)
 
             self.kb_append_uniq(self, 'global_redirect', v)

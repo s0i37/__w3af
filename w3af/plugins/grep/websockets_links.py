@@ -25,7 +25,6 @@ from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.data.parsers.mp_document_parser import mp_doc_parser
 from w3af.core.data.parsers.doc.javascript import JavaScriptParser
 from w3af.core.data.kb.info_set import InfoSet
-from w3af.core.data.kb.info import Info
 import w3af.core.controllers.output_manager as om
 
 
@@ -101,13 +100,14 @@ class websockets_links(GrepPlugin):
             desc = 'The URL: "%s" uses HTML5 websocket "%s"'
             desc = desc % (url, ws_link)
 
-            i = Info('HTML5 WebSocket detected', desc, response.id,
+            v = Vuln('HTML5 WebSocket detected', desc, severity.INFORMATION, response.id,
                      self.get_name())
-            i.set_url(url)
-            i[WebSocketInfoSet.ITAG] = ws_link
+            v.set_url(url)
+            v[WebSocketInfoSet.ITAG] = ws_link
 
             # Store found links
-            self.kb_append_uniq_group(self, 'websockets_links', i,
+            om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
+            self.kb_append_uniq_group(self, 'websockets_links', v,
                                       group_klass=WebSocketInfoSet)
 
     def get_long_desc(self):

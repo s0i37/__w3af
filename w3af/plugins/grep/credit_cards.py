@@ -23,6 +23,7 @@ import re
 
 import w3af.core.data.kb.knowledge_base as kb
 import w3af.core.data.constants.severity as severity
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.data.kb.vuln import Vuln
@@ -92,11 +93,12 @@ class credit_cards(GrepPlugin):
                 desc = desc % (response.get_url(), card)
                 
                 v = Vuln('Credit card number disclosure', desc,
-                         severity.LOW, response.id, self.get_name())
+                         severity.INFORMATION, response.id, self.get_name())
 
                 v.set_url(response.get_url())
                 v.add_to_highlight(card)
                 
+                om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
                 self.kb_append_uniq(self, 'credit_cards', v, 'URL')
 
     def _find_card(self, body):

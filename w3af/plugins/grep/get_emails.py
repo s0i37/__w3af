@@ -27,7 +27,8 @@ from w3af.core.controllers.exceptions import BaseFrameworkException
 from w3af.core.data.bloomfilter.scalable_bloom import ScalableBloomFilter
 from w3af.core.data.options.opt_factory import opt_factory
 from w3af.core.data.options.option_list import OptionList
-from w3af.core.data.kb.info import Info
+import w3af.core.data.constants.severity as severity
+from w3af.core.data.kb.vuln import Vuln
 from w3af.core.data.kb.info_set import InfoSet
 
 
@@ -97,14 +98,15 @@ class get_emails(GrepPlugin):
             # Create a new info object, and report it
             desc = 'The mail account: "%s" was found at "%s".'
             desc = desc % (mail_address, url)
-
-            i = Info('Email address disclosure', desc, response.id,
+            
+            v = Vuln('Email address disclosure', desc, severity.INFORMATION, response.id,
                      self.get_name())
-            i.add_to_highlight(mail_address)
-            i.set_url(url)
-            i[EmailInfoSet.ITAG] = mail_address
-            i['user'] = mail_address.split('@')[0]
+            v.add_to_highlight(mail_address)
+            v.set_url(url)
+            v[EmailInfoSet.ITAG] = mail_address
+            v['user'] = mail_address.split('@')[0]
 
+            om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
             self.kb_append_uniq_group('emails', kb_key, i,
                                       group_klass=EmailInfoSet)
 

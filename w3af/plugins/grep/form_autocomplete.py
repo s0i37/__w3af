@@ -20,11 +20,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """
 import w3af.core.data.parsers.parser_cache as parser_cache
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.exceptions import BaseFrameworkException
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.data.parsers.utils.form_constants import INPUT_TYPE_PASSWD
-from w3af.core.data.kb.info import Info
+import w3af.core.data.constants.severity as severity
+from w3af.core.data.kb.vuln import Vuln
 
 
 class form_autocomplete(GrepPlugin):
@@ -72,12 +74,13 @@ class form_autocomplete(GrepPlugin):
                             'auto-complete enabled.')
                     desc %= url
 
-                    i = Info('Auto-completable form', desc, response.id,
+                    v = Vuln('Auto-completable form', desc, severity.INFORMATION, response.id,
                              self.get_name())
-                    i.add_to_highlight('autocomplete')
-                    i.set_url(url)
+                    v.add_to_highlight('autocomplete')
+                    v.set_url(url)
 
-                    self.kb_append_uniq(self, 'form_autocomplete', i,
+                    #om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
+                    self.kb_append_uniq(self, 'form_autocomplete', v,
                                         filter_by='URL')
                     break
 

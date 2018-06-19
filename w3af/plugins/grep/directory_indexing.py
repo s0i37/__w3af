@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 """
 import w3af.core.data.constants.severity as severity
+import w3af.core.controllers.output_manager as om
 
 from w3af.core.controllers.plugins.grep_plugin import GrepPlugin
 from w3af.core.data.bloomfilter.scalable_bloom import ScalableBloomFilter
@@ -77,10 +78,11 @@ class directory_indexing(GrepPlugin):
             desc = 'The URL: "%s" has a directory indexing vulnerability.'
             desc = desc % response.get_url()
             
-            v = Vuln('Directory indexing', desc, severity.LOW, response.id,
+            v = Vuln('Directory indexing', desc, severity.INFORMATION, response.id,
                      self.get_name())
             v.set_url(response.get_url())
 
+            om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
             self.kb_append_uniq(self, 'directory', v, 'URL')
 
     def get_long_desc(self):
