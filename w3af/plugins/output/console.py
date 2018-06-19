@@ -91,29 +91,26 @@ class console(OutputPlugin):
             print Fore.LIGHTBLACK_EX + message + Fore.RESET
 
     def log_http(self, request, response, new_line=True):
-        code = int( response.get_code() )
-        size = len( response.get_body() )
-        time = response.get_wait_time()
-        #code_str = ( Fore.LIGHTRED_EX if code >= 500 else Fore.LIGHTYELLOW_EX ) + str(code)
-        #size_str = Fore.LIGHTYELLOW_EX + str(size)
-        #time_str = Fore.LIGHTYELLOW_EX + "%.03f" % time
-        code_str = str(code)
-        size_str = str(size)
-        time_str = "%.03f" % time
+        code_str = str( int( response.get_code() ) )
+        size_str = str( len( response.get_body() ) )
+        time_str = "%.03f" % response.get_wait_time()
         uri = unquote( request.get_full_url() )
         inject_point = None
-        if isinstance(request._from, Mutant):
-            inject_point = request._from.get_token_value()
-            param = request._from.get_token_name()
-        if inject_point:
+        try:
+            if isinstance(request._from, Mutant):
+                inject_point = unquote( request._from.get_token_value() )
+                param = unquote( request._from.get_token_name() )
+        except:
+            pass
+        if inject_point != None:
             uri = uri.replace( "%s=%s"%(param,inject_point), Fore.LIGHTRED_EX + "%s=%s"%(param,inject_point) + Fore.LIGHTGREEN_EX )
         print Fore.LIGHTGREEN_EX + "{method} {uri}".format( method=request.get_method(), uri=uri ) ,
         print Fore.LIGHTYELLOW_EX + "  [{code}] [{size}] [{chksum}] [{time}]".format( code=code_str, size=size_str, chksum=chksum( response.get_body() ), time=time_str ),
         if request.get_data():
             print Fore.GREEN
             postdata = unquote( request.get_data() )
-            if inject_point:
-                postdata = postdata.replace( "%s=%s"%(param,inject_point), Fore.LIGHTRED_EX + "%s=%s"%(param,inject_point) + Fore.LIGHTGREEN_EX )
+            if inject_point != None:
+                postdata = postdata.replace( "%s=%s"%(param,inject_point), Fore.LIGHTRED_EX + "%s=%s"%(param,inject_point) + Fore.GREEN )
             print postdata
         print Fore.RESET
 
@@ -125,11 +122,11 @@ class console(OutputPlugin):
         if severity == HIGH:
             print Fore.WHITE + Back.RED + message + Fore.RESET + Back.RESET
         elif severity == MEDIUM:
-            print Fore.WHITE + Back.YELLOW + message + Fore.RESET + Back.RESET
+            print Fore.BLACK + Back.LIGHTYELLOW_EX + message + Fore.RESET + Back.RESET
         elif severity == LOW:
-            print Fore.WHITE + Back.GREEN + message + Fore.RESET + Back.RESET
+            print Fore.BLACK + Back.GREEN + message + Fore.RESET + Back.RESET
         elif severity == INFORMATION:
-            print Fore.WHITE + Back.BLUE + message + Fore.RESET + Back.RESET
+            print Fore.BLACK + Back.CYAN + message + Fore.RESET + Back.RESET
 
     @catch_ioerror
     def _generic(self, message, new_line=True, severity=None):
