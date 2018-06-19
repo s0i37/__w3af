@@ -24,6 +24,7 @@ from w3af.core.data.dc.generic.form import Form
 from w3af.core.data.dc.utils.file_token import FileDataToken
 from w3af.core.data.dc.utils.token import DataToken
 from w3af.core.data.dc.multipart_container import MultipartContainer
+from w3af.core.data.dc.headers import Headers
 
 
 class FileContentMutant(PostDataMutant):
@@ -66,7 +67,7 @@ class FileContentMutant(PostDataMutant):
         form = freq.get_raw_data()
         multipart_container = OnlyTokenFilesMultipartContainer(form)
         freq.set_data(multipart_container)
-
+        freq.set_headers( Headers( multipart_container.get_headers() ) )
         res = cls._create_mutants_worker(freq, cls, payload_list,
                                          freq.get_file_vars(),
                                          append, fuzzer_config)
@@ -94,7 +95,8 @@ class OnlyTokenFilesMultipartContainer(MultipartContainer):
                 else:
                     if key in self.get_file_vars():
                         fname = val.filename if hasattr(val, 'filename') else None
-                        token = FileDataToken(key, val, fname, ipath)
+                        #token = FileDataToken(key, val, fname, ipath)
+                        token = DataToken(key, val, ipath)
                     else:
                         token = DataToken(key, val, ipath)
 
