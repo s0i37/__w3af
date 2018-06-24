@@ -23,7 +23,8 @@ import w3af.core.controllers.output_manager as om
 import w3af.core.data.kb.knowledge_base as kb
 
 from w3af.core.controllers.plugins.infrastructure_plugin import InfrastructurePlugin
-from w3af.core.data.kb.info import Info
+import w3af.core.data.constants.severity as severity
+from w3af.core.data.kb.vuln import Vuln
 
 
 class server_header(InfrastructurePlugin):
@@ -67,14 +68,12 @@ class server_header(InfrastructurePlugin):
                 desc = 'The server header for the remote web server is: "%s".'
                 desc = desc % server
                 
-                i = Info('Server header', desc, response.id, self.get_name())
-                i['server'] = server
-                i.add_to_highlight(hname + ':')
+                v = Vuln('Server header', desc, severity.INFORMATION, response.id, self.get_name())
+                v['server'] = server
+                v.add_to_highlight(hname + ':')
                 
-                om.out.information(i.get_desc())
-
                 # Save the results in the KB so the user can look at it
-                kb.kb.append(self, 'server', i)
+                kb.kb.append(self, 'server', v)
 
                 # Also save this for easy internal use
                 # other plugins can use this information
@@ -85,14 +84,12 @@ class server_header(InfrastructurePlugin):
             # strange !
             desc = 'The remote HTTP Server omitted the "server" header in'\
                   ' its response.'
-            i = Info('Omitted server header', desc, response.id,
+            v = Vuln('Omitted server header', desc, severity.INFORMATION, response.id,
                      self.get_name())
-
-            om.out.information(i.get_desc())
 
             # Save the results in the KB so that other plugins can use this
             # information
-            kb.kb.append(self, 'ommited_server_header', i)
+            kb.kb.append(self, 'ommited_server_header', v)
 
             # Also save this for easy internal use
             # other plugins can use this information
@@ -125,12 +122,10 @@ class server_header(InfrastructurePlugin):
                         desc = 'The %s header for the target HTTP server is "%s".'
                         desc = desc % (header_name, powered_by)
                         
-                        i = Info('Powered-by header', desc, response.id,
+                        v = Vuln('Powered-by header', desc, severity.INFORMATION, response.id,
                                  self.get_name())
-                        i['powered_by'] = powered_by
-                        i.add_to_highlight(header_name + ':')
-                        
-                        om.out.information(i.get_desc())
+                        v['powered_by'] = powered_by
+                        v.add_to_highlight(header_name + ':')
 
                         # Save the results in the KB so that other plugins can
                         # use this information. Before knowing that some servers
@@ -138,7 +133,7 @@ class server_header(InfrastructurePlugin):
                         #     kb.kb.raw_write( self , 'powered_by' , powered_by )
                         # But I have seen an IIS server with PHP that returns
                         # both the ASP.NET and the PHP headers
-                        kb.kb.append(self, 'powered_by', i)
+                        kb.kb.append(self, 'powered_by', v)
                         
                         # Update the list and save it,
                         powered_by_in_kb.append(powered_by)
