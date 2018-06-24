@@ -415,7 +415,7 @@ class crawl_infrastructure(BaseConsumer):
         # https://github.com/andresriancho/w3af/issues/8496
         url = fuzzable_request.get_url()
         if self._reported_found_urls.add(url):
-            msg = '[+] New URL found by %s plugin: "%s"'
+            msg = '[+] %s: "%s"'
             args = (plugin.get_name(), url)
             om.out.information(msg % args)
 
