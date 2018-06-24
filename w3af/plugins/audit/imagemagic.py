@@ -49,10 +49,11 @@ pop graphic-context
 					response = self._uri_opener.send_mutant( mutant, cache=False, timeout=10 )
 					if self.check('get.' + self.fqdn_imagemagic_exist):
 						desc = 'Imagemagic found: "%s"' % response.get_uri()
-						i = Info('Imagemagic detected', desc, response.id, self.get_name())
+						i = Vuln.from_mutant('Imagemagic detected', desc,
+										severity.INFORMATION, response.id, self.get_name(),
+										mutant)
 						i.add_to_highlight('Imagemagic')
-						i.set_url(url)
-						self.kb_append_uniq('imagemagic', i)
+						self.kb_append_uniq(self, 'imagemagic_detect', i)
 
 					if self.check('get.' + self.fqdn_imagemagic_vuln):
 						desc = 'Imagemagic OS-injection at: "%s", using'\
@@ -61,10 +62,10 @@ pop graphic-context
 										mutant.get_method(),
 										mutant.get_token_name() )
 						vuln = Vuln.from_mutant('Imagemagic OS-injection vulnerability', desc,
-										severity.HIGH, response.id, 'xxe',
+										severity.HIGH, response.id, self.get_name(),
 										mutant)
-						om.out.debug( vuln.get_desc() )
-						om.out.vulnerability("imagemagic os injection", severity=severity.HIGH)
+						self.kb_append_uniq(self, 'imagemagic_rce', vuln)
+						
 
 				except HTTPRequestException:
 					om.out.debug("HTTPRequestException")
