@@ -52,11 +52,11 @@ class LogSink(object):
 
         :param info_inst: An Info class or subclass.
         """
-        if INFORMATION == info_inst.get_severity():
-            self.information(info_inst.get_desc())
+        #if INFORMATION == info_inst.get_severity():
+        #    self.information("[+] %s\n%s" % (info_inst.get_name(), info_inst.get_desc()))
 
-        else:
-            self.vulnerability(info_inst.get_desc(),
+        #else:
+        self.vulnerability("[+] %s\n%s" % (info_inst.get_name(), info_inst.get_desc()),
                                severity=info_inst.get_severity())
 
     def _add_to_queue(self, *args, **kwargs):

@@ -124,7 +124,7 @@ class console(OutputPlugin):
         elif severity == MEDIUM:
             print Fore.BLACK + Back.LIGHTYELLOW_EX + message + Fore.RESET + Back.RESET
         elif severity == LOW:
-            print Fore.BLACK + Back.GREEN + message + Fore.RESET + Back.RESET
+            print Fore.BLACK + Back.LIGHTGREEN_EX + message + Fore.RESET + Back.RESET
         elif severity == INFORMATION:
             print Fore.BLACK + Back.CYAN + message + Fore.RESET + Back.RESET
 
