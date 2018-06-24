@@ -320,10 +320,10 @@ class web_spider(CrawlPlugin):
         # But this does not, and it is friendlier than simply ignoring the
         # referer
         #
-        if self._fuzzy_browser.check_page( str(reference) ):
-            self._fuzzy_browser.add_page( str(reference) )
-        else:
-            return
+    #    if self._fuzzy_browser.check_page( str(reference) ):
+    #        self._fuzzy_browser.add_page( str(reference) )
+    #    else:
+    #        return
         referer = original_response.get_url().base_url().url_string
         headers = Headers([('Referer', referer)])
 
@@ -333,10 +333,14 @@ class web_spider(CrawlPlugin):
         #       example). If it's not a 404 then we'll push it to the core
         #       and it will come back to this plugin's crawl() where it will
         #       be requested with grep=True
-        #resp = self._uri_opener.GET(reference, cache=True, headers=headers,
-        #                            grep=False)
+        self._requests_count += 1
+        if self._requests_count > self._max_requests_count:
+            return
 
-        if 0:
+        resp = self._uri_opener.GET(reference, cache=True, headers=headers,
+                                    grep=False)
+
+        if is_404(resp):
             # Note: I WANT to follow links that are in the 404 page, but
             # DO NOT return the 404 itself to the core.
             #
@@ -387,9 +391,7 @@ class web_spider(CrawlPlugin):
 
             fuzz_req.set_referer(referer)
             fuzz_req.set_cookie(cookie)
-            self._requests_count += 1
-            if self._requests_count <= self._max_requests_count:
-                self.output_queue.put(fuzz_req)
+            self.output_queue.put(fuzz_req)
 
     def end(self):
         """
