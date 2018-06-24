@@ -81,8 +81,8 @@ class get_emails(GrepPlugin):
 
         for mail_address in emails:
             # Reduce false positives
-            if request.sent(mail_address):
-                continue
+#            if request.sent(mail_address):
+#                continue
 
             # Email address are case insensitive
             mail_address = mail_address.lower()
@@ -106,8 +106,7 @@ class get_emails(GrepPlugin):
             v[EmailInfoSet.ITAG] = mail_address
             v['user'] = mail_address.split('@')[0]
 
-            om.out.vulnerability(v.get_desc(), severity=severity.INFORMATION)
-            self.kb_append_uniq_group('emails', kb_key, i,
+            self.kb_append_uniq_group('emails', kb_key, v,
                                       group_klass=EmailInfoSet)
 
     def set_options(self, options_list):

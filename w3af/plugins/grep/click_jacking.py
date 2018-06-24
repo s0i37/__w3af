@@ -82,7 +82,7 @@ class click_jacking(GrepPlugin):
             desc += ' - '.join([str(url) + '\n' for url in self._vulns])
 
         v = Vuln('Click-Jacking vulnerability', desc,
-                 severity.MEDIUM, response_ids, self.get_name())
+                 severity.LOW, response_ids, self.get_name())
         
         self.kb_append(self, 'click_jacking', v)
         
