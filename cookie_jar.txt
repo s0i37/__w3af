@@ -1,0 +1,5 @@
+# Netscape HTTP Cookie File
+
+.domain.com	TRUE	/	FALSE	1532065197	remember_me	true
+.domain.com	TRUE	/	FALSE	1532065197	APISID	DijdSAOAjgwijnhFMndsjiejfdSDNSgfsikasASIfgijsowITITeoknsd
+.domain.com	TRUE	/	FALSE	1532065197	static_files	iy1aBf1JhQR
